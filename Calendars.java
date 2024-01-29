@@ -222,11 +222,17 @@ public static void main(String[] args) {
           // Log In User Choice
           System.out.println("Login User :: Provide username to login");
           String loginUsername = scanner.nextLine();
-          calendarsApp.setUser(loginUsername);
+
+          boolean userSet = calendarsApp.setUser(loginUsername);
+          if (userSet) {
+            System.out.println("Logged in User :: " + calendarsApp.currentUser.getUsername());
+          } else {
+            System.out.println("Invalid Username, try again");
+            break;
+          }
 
           while (calendarsApp.loggedIn) {
             // Calendar functionality here
-            System.out.println("Logged in User :: " + calendarsApp.currentUser.getUsername());
 
             System.out.println("Choose an option:");
             System.out.println("1. Logout User");
@@ -279,58 +285,11 @@ public static void main(String[] args) {
 
             
           } 
-          // else {
-          //   // Invalid username, re-prompt
-          //   System.out.println("Username NOT FOUND :: Please input a valid username");
-          //   break;
-          // }
           break;      
         default:
           break;
       }
     }
-
-
-    // while (true) {
-    //   System.out.println("Choose an option:");
-    //   System.out.println("1. Create new calendar");
-    //   System.out.println("2. Manage calendars");
-    //   System.out.println("3. Delete calendar");
-    //   System.out.println("4. Log Out User");
-
-    //   try {
-    //     int menuChoice = scanner.nextInt();
-
-    //     switch (menuChoice) {
-    //       case 1:
-    //         System.out.println("You have chosen to create a new calendar");
-    //         break;
-
-    //       default:
-    //         break;
-    //     }
-    //   } catch (InputMismatchException e) {
-    //     System.out.println("Please provide a number as input.");
-    //     break;
-    //   }
-    // }
-            // switch (choice) {
-            //     case 1:
-            //         System.out.println("You chose option 1.");
-            //         break;
-            //     case 2:
-            //         System.out.println("You chose option 2.");
-            //         break;
-            //     case 3:
-            //         System.out.println("You chose option 3.");
-            //         break;
-            //     case 4:
-            //         System.out.println("Goodbye!");
-            //         return;
-            //     default:
-            //         System.out.println("Invalid choice. Please try again.");
-            //         break;
-            // }
 }
 
 }
