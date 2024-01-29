@@ -160,6 +160,7 @@ class Event {
 class CalendarApp {
   private List<User> users = new ArrayList<User>();
   public User currentUser;
+  public boolean loggedIn = false;
 
   public void createUser(String name) {
     User newUser = new User();
@@ -172,11 +173,19 @@ class CalendarApp {
       if (user.getUsername().equals(name)) {
         this.currentUser = user;
         // user is registered, send to next instructions. (Managing User Calendars)
+        this.loggedIn = true;
         return true;
       }
     }
     // user not registered, prompt again
+    this.loggedIn = false;
     return false;
+  }
+
+  public void unsetUser() {
+
+    this.currentUser = null;
+    this.loggedIn = false;
   }
 
   public List<User> getUsers() {
@@ -192,6 +201,7 @@ public static void main(String[] args) {
     CalendarApp calendarsApp = new CalendarApp();
     Scanner scanner = new Scanner(System.in);
 
+    // User Login Loop
     while (true) {
       System.out.println("Choose an option:");
       System.out.println("1. Create User");
@@ -202,22 +212,78 @@ public static void main(String[] args) {
 
       switch (menuChoice) {
         case 1:
+          // Register User Choice
             System.out.println("Register User :: Provide a username (used for login)");
             String newUsername = scanner.nextLine();
             calendarsApp.createUser(newUsername);
             System.out.println("Created User:" + newUsername);
           break;
         case 2:
-          // Logged in functionality here
+          // Log In User Choice
           System.out.println("Login User :: Provide username to login");
           String loginUsername = scanner.nextLine();
-          boolean validUser = calendarsApp.setUser(loginUsername);
+          calendarsApp.setUser(loginUsername);
 
-          if (validUser) {
+          while (calendarsApp.loggedIn) {
             // Calendar functionality here
-          } else {
-            System.out.println("! Invalid Username !");
-          }
+            System.out.println("Logged in User :: " + calendarsApp.currentUser.getUsername());
+
+            System.out.println("Choose an option:");
+            System.out.println("1. Logout User");
+            System.out.println("2. Create Calendar");
+
+            boolean hasCalendars = calendarsApp.currentUser.getCalendars().size() > 0;
+            if (hasCalendars) {
+              System.out.println("3. Manage Calendars");
+              System.out.println("4. Remove Calendar");
+            }
+
+            int calendarChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (calendarChoice) {
+              case 1:
+                  calendarsApp.unsetUser();
+                break;
+              case 2:
+                  System.out.println("Create Calendar:: Provide a Calendar name");
+                  String newCalendarName = scanner.nextLine();
+                  calendarsApp.currentUser.addCalendar(newCalendarName);
+                break;
+              case 3:
+                if (hasCalendars) {
+                  System.out.println("Here are your Calendars ::");
+                  for (Calendar userCalendar : calendarsApp.currentUser.getCalendars()) {
+                    System.out.println(userCalendar.getName());
+                  }
+                  break;
+                }
+              case 4:
+                if (hasCalendars) {
+                  System.out.println("Select which Calendar you would like to remove");
+                  List<Calendar> userCalendars = calendarsApp.currentUser.getCalendars();
+                  for (int i = 0; i < userCalendars.size(); i++) {
+                    System.out.println(i + ": " + userCalendars.get(i).getName());
+                  }
+
+                  int removeCalendarIndex = scanner.nextInt();
+                  scanner.nextLine();
+
+                  calendarsApp.currentUser.removeCalendar(userCalendars.get(removeCalendarIndex).getName());
+                  break;
+                }
+              default:
+              System.out.println("Invalid Choice, please re-try.");
+                break;
+            }
+
+            
+          } 
+          // else {
+          //   // Invalid username, re-prompt
+          //   System.out.println("Username NOT FOUND :: Please input a valid username");
+          //   break;
+          // }
           break;      
         default:
           break;
