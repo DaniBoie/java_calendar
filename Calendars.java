@@ -1,8 +1,11 @@
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.util.TimeZone;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 class User {
@@ -50,10 +53,10 @@ enum Visibility {
 
 class Calendar {
   private String name; // editable
-  private List<Event> events;
+  private List<Event> events = new ArrayList<Event>();
   // Event deletedEvent; Removed because it is not needed
   private TimeZone timeZone; // set by application
-  private Theme theme; // set by application
+  // private Theme theme; // set by application
   private Visibility visibility = Visibility.PRIVATE; // editable
 
   // public void updateEvent(Event event) {
@@ -61,9 +64,14 @@ class Calendar {
   // } Likely do not need this becuase events will be updateable from thier direct
   // Class
 
-  public void createEvent(LocalDateTime startTime, LocalDateTime endTime) {
+  public List<Event> getEvents() {
+    return this.events;
+  } 
+
+  public void createEvent(String name, Date startTime, Date endTime) {
     // Implementation here
     Event newEvent = new Event();
+    newEvent.setEventName(name);
     newEvent.setStartTime(startTime);
     newEvent.setEndTime(endTime);
 
@@ -99,9 +107,9 @@ class Calendar {
 
 class Event {
   private String name;
-  private LocalDateTime startTime;
-  private LocalDateTime endTime;
-  private List<String> sharedUsers;
+  private Date startTime;
+  private Date endTime;
+  private List<String> sharedUsers = new ArrayList<String>();
   // private String description; Future Implementation
 
   public void shareUser(String username) {
@@ -120,19 +128,19 @@ class Event {
     return this.name;
   }
 
-  public void setStartTime(LocalDateTime localTime) {
+  public void setStartTime(Date localTime) {
     this.startTime = localTime;
   }
 
-  public LocalDateTime getStartTime() {
+  public Date getStartTime() {
     return this.startTime;
   }
 
-  public void setEndTime(LocalDateTime localTime) {
+  public void setEndTime(Date localTime) {
     this.endTime = localTime;
   }
 
-  public LocalDateTime getEndTime() {
+  public Date getEndTime() {
     return this.endTime;
   }
 
@@ -196,6 +204,7 @@ class CalendarApp {
 class Calendars {
 public static void main(String[] args) {
     // code to be executed
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     System.out.println("WELCOME TO CALENDARS!");
     CalendarApp calendarsApp = new CalendarApp();
@@ -217,7 +226,7 @@ public static void main(String[] args) {
             String newUsername = scanner.nextLine();
             calendarsApp.createUser(newUsername);
             System.out.println("Created User:" + newUsername);
-          break;
+          break; // case 1 userChoice
         case 2:
           // Log In User Choice
           System.out.println("Login User :: Provide username to login");
@@ -248,22 +257,202 @@ public static void main(String[] args) {
             scanner.nextLine();
 
             switch (calendarChoice) {
+              // Logout User
               case 1:
                   calendarsApp.unsetUser();
-                break;
+                break; // case 1 calendarChoice
+              // Create Calendar
               case 2:
                   System.out.println("Create Calendar:: Provide a Calendar name");
                   String newCalendarName = scanner.nextLine();
                   calendarsApp.currentUser.addCalendar(newCalendarName);
-                break;
+                break; // case 2 calendarChoice
+              // Manage Calendar
               case 3:
                 if (hasCalendars) {
-                  System.out.println("Here are your Calendars ::");
-                  for (Calendar userCalendar : calendarsApp.currentUser.getCalendars()) {
-                    System.out.println(userCalendar.getName());
+                  System.out.println("Select which Calendar you would like to manage");
+                  List<Calendar> userCalendars = calendarsApp.currentUser.getCalendars();
+                  for (int i = 0; i < userCalendars.size(); i++) {
+                    System.out.println(i + ": " + userCalendars.get(i).getName());
                   }
-                  break;
+
+                  int selectedCalendar = scanner.nextInt();
+                  scanner.nextLine();
+                  
+                  String selectedCalendarName = userCalendars.get(selectedCalendar).getName();
+                  // Gather and show calendar data here in a pretty form
+                  while (selectedCalendarName != "") {
+            
+                      System.out.println("Managing " + selectedCalendarName + ":");
+                      System.out.println("1. Back");
+                      System.out.println("2. Change Calendar Name");
+                      System.out.println("3. Set Calendar Visiblity");
+                      System.out.println("4. Create Event");
+
+                      boolean hasEvents = calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size() > 0;
+
+                      if (hasEvents) {
+                        System.out.println("5. Manage Events");
+                        System.out.println("6. Remove Event");
+                      }
+
+                      int calenderMenuChoice = scanner.nextInt();
+                      scanner.nextLine();
+
+                      switch (calenderMenuChoice) {
+                        case 1:
+                            selectedCalendarName = "";
+                          break; // case 1 eventChoice
+                        case 2:
+                          System.out.println("Provide a new name for " + selectedCalendarName);
+                          String newName = scanner.nextLine();
+                          calendarsApp.currentUser.getCalendars().get(selectedCalendar).setName(newName);
+                          System.out.println(selectedCalendarName + " was changed to: " + newName);
+                          selectedCalendarName = newName;
+
+                          break;
+                        case 3:
+                            System.out.println("Choose a Visiblity for " + selectedCalendarName);
+                            System.out.println("1. PUBLIC");
+                            System.out.println("2. PRIVATE");
+
+                            int visibilityChoice = scanner.nextInt();
+                            switch (visibilityChoice) {
+                              case 1:
+                                  calendarsApp.currentUser.getCalendars().get(selectedCalendar).setVisibility(Visibility.PUBLIC);
+                                  System.out.println(selectedCalendarName + " is now PUBLIC");
+                                break; // case 1 visibilityChoice
+                              case 2:
+                                  calendarsApp.currentUser.getCalendars().get(selectedCalendar).setVisibility(Visibility.PRIVATE);
+                                  System.out.println(selectedCalendarName + " is now PRIVATE");
+                                break; // case 2 visibilityChoice                       
+                              default:
+                                break; // default case visibilityChoice
+                            }
+                          break; // case 2 eventChoice
+                        case 4:
+                            System.out.println("Choose a name for this event:");
+                            String newEventName = scanner.nextLine();
+                            boolean validStart = false;
+                            boolean validEnd = false;
+                            Date startDateTime = null;
+                            Date endDateTime = null;
+                            while (!validStart) {
+                              try {
+                                System.out.println("Enter start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                String startDateTimeString = scanner.nextLine();
+                                startDateTime = dateFormat.parse(startDateTimeString);    
+                                validStart = true;
+                              } catch (ParseException e) {
+                                // TODO: handle exception
+                                System.out.println("Unable to parse date & time, try again");
+                              }
+                            }
+                            while (!validEnd) {
+                              try {
+                                System.out.println("Enter end date and time (dd/MM/yyyy HH:mm:ss): ");
+                                String endDateTimeString = scanner.nextLine();
+                                endDateTime = dateFormat.parse(endDateTimeString);
+                                validEnd = true;
+                              } catch (ParseException e) {
+                                // TODO: handle exception
+                                System.out.println("Unable to parse date & time, try again");
+                              }
+                            }
+
+                            calendarsApp.currentUser.getCalendars().get(selectedCalendar).createEvent(newEventName, startDateTime, endDateTime);
+                            System.out.println(newEventName + " has been created!");
+                          break; // case 3 eventChoice
+
+                        case 5:
+                            // print events here and do the event loop
+                            if (hasEvents) {
+                              System.out.println("Select which Event you would like to manage");
+                              
+                              for (int i = 0; i < calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size(); i++) {
+                                System.out.println(i + ": " + calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(i).getEventName());
+                              }
+
+                              int selectedEvent = scanner.nextInt();
+                              scanner.nextLine();
+
+                              String selectedEventName = calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).getEventName();
+                              System.out.println("Managing " + selectedEventName);
+
+                              while (selectedEventName != "") {
+                                System.out.println("Choose an option:");
+                                System.out.println("1. Back");
+                                System.out.println("2. Share With User");
+                                System.out.println("3. Change Event Name");
+                                System.out.println("4. Change Start Time");
+                                System.out.println("5. Change End Time");
+
+                                int eventChoice = scanner.nextInt();
+                                scanner.nextLine();
+
+                                switch (eventChoice) {
+                                  case 1:
+                                      selectedEventName = "";
+                                    break;
+                                  case 2:
+                                      System.out.println("Share User Functionality Here");
+                                    break;
+
+                                  case 3:
+                                    System.out.println("Provide a new name for " + selectedEventName);
+                                    String changeEventName = scanner.nextLine();
+                                    calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEventName(changeEventName);
+                                    System.out.println(selectedEventName + " was changed to: " + changeEventName);
+                                    selectedEventName = changeEventName;
+                                    break;
+
+                                  case 4:
+                                    boolean validTime = false;
+                                    while (!validTime) {
+                                      try {
+                                        System.out.println("Enter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                        String startDateTimeString = scanner.nextLine();
+                                        startDateTime = dateFormat.parse(startDateTimeString);
+                                        calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setStartTime(startDateTime);
+                                        validTime = true;
+                                      } catch (ParseException e) {
+                                        // TODO: handle exception
+                                        System.out.println("Unable to parse date & time, try again");
+                                      }
+                                    }
+                                    break;
+                                  case 5:
+                                    boolean validChangeTime = false;
+                                    while (!validChangeTime) {
+                                      try {
+                                        System.out.println("Enter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                        String endDateTimeString = scanner.nextLine();
+                                        endDateTime = dateFormat.parse(endDateTimeString);
+                                        calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEndTime(endDateTime);
+                                        validChangeTime = true;
+                                      } catch (ParseException e) {
+                                        // TODO: handle exception
+                                        System.out.println("Unable to parse date & time, try again");
+                                      }
+                                    }
+                                    break;
+                                  default:
+                                    break;
+                                }
+
+                              }
+                              break;
+                            }
+                          
+                        default: 
+                        // error handle here
+                          break; // default case eventChoice
+                      }
+                  }
+
+                  break; // case 3 calendarChoice
                 }
+              // Remove Calendar
               case 4:
                 if (hasCalendars) {
                   System.out.println("Select which Calendar you would like to remove");
@@ -280,16 +469,26 @@ public static void main(String[] args) {
                 }
               default:
               System.out.println("Invalid Choice, please re-try.");
-                break;
+                break; // default case calendarChoice
             }
 
             
           } 
-          break;      
+          break; // case 2 userChoice
         default:
-          break;
+          break; // default case userChoce
       }
     }
 }
 
 }
+
+// SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+// System.out.println("Enter start date and time (dd/MM/yyyy HH:mm:ss): ");
+// String startDateTimeString = scanner.nextLine();
+// Date startDateTime = dateFormat.parse(startDateTimeString);
+
+// System.out.println("Enter end date and time (dd/MM/yyyy HH:mm:ss): ");
+// String endDateTimeString = scanner.nextLine();
+// Date endDateTime = dateFormat.parse(endDateTimeString);
