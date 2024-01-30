@@ -443,10 +443,27 @@ public static void main(String[] args) {
                               }
                               break;
                             }
+                        
+                        case 6:
+                            if (hasEvents) {
+                              System.out.println("Select which Event you would like to remove");
+
+                              for (int i = 0; i < calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size(); i++) {
+                                System.out.println(i + ": " + calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(i).getEventName());
+                              }
+
+                              int selectedEvent = scanner.nextInt();
+                              scanner.nextLine();
+
+                              calendarsApp.currentUser.getCalendars().get(selectedCalendar).removeEvent(
+                                  calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent)
+                                      .getEventName());
+                              break;
+                            }
                           
                         default: 
-                        // error handle here
-                          break; // default case eventChoice
+                        // error handle int input here
+                          break; // default case calendarMenuChoice
                       }
                   }
 
