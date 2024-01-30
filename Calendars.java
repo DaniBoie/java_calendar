@@ -1,12 +1,9 @@
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.TimeZone;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 
 class User {
   private String username;
@@ -55,7 +52,7 @@ class Calendar {
   private String name; // editable
   private List<Event> events = new ArrayList<Event>();
   // Event deletedEvent; Removed because it is not needed
-  private TimeZone timeZone; // set by application
+  // private TimeZone timeZone; // set by application
   // private Theme theme; // set by application
   private Visibility visibility = Visibility.PRIVATE; // editable
 
@@ -109,16 +106,16 @@ class Event {
   private String name;
   private Date startTime;
   private Date endTime;
-  private List<String> sharedUsers = new ArrayList<String>();
-  // private String description; Future Implementation
+  // private List<String> sharedUsers = new ArrayList<String>();
+  // // private String description; Future Implementation
 
-  public void shareUser(String username) {
-    this.sharedUsers.add(username);
-  }
+  // public void shareUser(String username) {
+  //   this.sharedUsers.add(username);
+  // }
 
-  public List<String> getSharedUsers() {
-    return this.sharedUsers;
-  }
+  // public List<String> getSharedUsers() {
+  //   return this.sharedUsers;
+  // }
 
   public void setEventName(String name) {
     this.name = name;
@@ -209,41 +206,63 @@ public static void main(String[] args) {
     System.out.println("WELCOME TO CALENDARS!");
     CalendarApp calendarsApp = new CalendarApp();
     Scanner scanner = new Scanner(System.in);
-
+    boolean quitApp = false;
     // User Login Loop
-    while (true) {
-      System.out.println("Choose an option:");
-      System.out.println("1. Create User");
-      System.out.println("2. Login User");
+    while (!quitApp) {
+      System.out.println("\nCreate/Login User:");
+      System.out.println("1. Quit Application");
+      System.out.println("2. Create User");
 
+      boolean hasUsers = calendarsApp.getUsers().size() > 0;
+      if (hasUsers) {
+        System.out.println("3. Login User");
+      }
       int menuChoice = scanner.nextInt();
       scanner.nextLine();
 
       switch (menuChoice) {
         case 1:
+          quitApp = true;
+          break;
+        case 2:
           // Register User Choice
-            System.out.println("Register User :: Provide a username (used for login)");
+            System.out.println("\nRegister Username: (provide text for username)");
             String newUsername = scanner.nextLine();
             calendarsApp.createUser(newUsername);
             System.out.println("Created User:" + newUsername);
           break; // case 1 userChoice
-        case 2:
-          // Log In User Choice
-          System.out.println("Login User :: Provide username to login");
-          String loginUsername = scanner.nextLine();
+        case 3:
 
-          boolean userSet = calendarsApp.setUser(loginUsername);
-          if (userSet) {
-            System.out.println("Logged in User :: " + calendarsApp.currentUser.getUsername());
-          } else {
-            System.out.println("Invalid Username, try again");
+          if (!hasUsers) {
+            System.out.println("Invalid Choice, try again");
             break;
           }
+
+          boolean validUser = false;
+          // Log In User Choice
+          while (!validUser) {
+            System.out.println("\nSelect User to Login:");
+            for (int i = 0; i < calendarsApp.getUsers().size(); i++) {
+              System.out.println(i + ". " + calendarsApp.getUsers().get(i).getUsername());
+            }
+
+            int loginUserIndex = scanner.nextInt();
+            scanner.nextLine();
+            
+            try {
+              calendarsApp.setUser(calendarsApp.getUsers().get(loginUserIndex).getUsername());
+              System.out.println("\n" + calendarsApp.currentUser.getUsername() + " Logged In:");
+              validUser = true;
+            } catch (IndexOutOfBoundsException e) {
+              System.out.println("Invalid Choice, try again\n");
+            }
+          }
+
 
           while (calendarsApp.loggedIn) {
             // Calendar functionality here
 
-            System.out.println("Choose an option:");
+            System.out.println("\nMain Menu:");
             System.out.println("1. Logout User");
             System.out.println("2. Create Calendar");
 
@@ -263,27 +282,39 @@ public static void main(String[] args) {
                 break; // case 1 calendarChoice
               // Create Calendar
               case 2:
-                  System.out.println("Create Calendar:: Provide a Calendar name");
+                  System.out.println("\nCreate Calendar:: Provide a Calendar name");
                   String newCalendarName = scanner.nextLine();
                   calendarsApp.currentUser.addCalendar(newCalendarName);
+                  System.out.println(newCalendarName + " Successfully Created!");
                 break; // case 2 calendarChoice
               // Manage Calendar
               case 3:
                 if (hasCalendars) {
-                  System.out.println("Select which Calendar you would like to manage");
+                  int selectedCalendar = 10000;
+                  boolean validChoice = false;
                   List<Calendar> userCalendars = calendarsApp.currentUser.getCalendars();
-                  for (int i = 0; i < userCalendars.size(); i++) {
-                    System.out.println(i + ": " + userCalendars.get(i).getName());
-                  }
 
-                  int selectedCalendar = scanner.nextInt();
-                  scanner.nextLine();
+                  while (!validChoice) {
+                    System.out.println("\nSelect which Calendar you would like to manage");
+                    for (int i = 0; i < userCalendars.size(); i++) {
+                      System.out.println(i + ": " + userCalendars.get(i).getName());
+                    }
+
+                    selectedCalendar = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (selectedCalendar > userCalendars.size() - 1 || selectedCalendar < 0) {
+                      System.out.println("Invalid Choice, Try Again");
+                    } else {
+                      validChoice = true;
+                    }
+                  }
                   
                   String selectedCalendarName = userCalendars.get(selectedCalendar).getName();
                   // Gather and show calendar data here in a pretty form
                   while (selectedCalendarName != "") {
             
-                      System.out.println("Managing " + selectedCalendarName + ":");
+                      System.out.println("\nManaging Calendar: " + selectedCalendarName);
                       System.out.println("1. Back");
                       System.out.println("2. Change Calendar Name");
                       System.out.println("3. Set Calendar Visiblity");
@@ -304,7 +335,7 @@ public static void main(String[] args) {
                             selectedCalendarName = "";
                           break; // case 1 eventChoice
                         case 2:
-                          System.out.println("Provide a new name for " + selectedCalendarName);
+                          System.out.println("\nProvide a new name for " + selectedCalendarName);
                           String newName = scanner.nextLine();
                           calendarsApp.currentUser.getCalendars().get(selectedCalendar).setName(newName);
                           System.out.println(selectedCalendarName + " was changed to: " + newName);
@@ -312,7 +343,7 @@ public static void main(String[] args) {
 
                           break;
                         case 3:
-                            System.out.println("Choose a Visiblity for " + selectedCalendarName);
+                            System.out.println("\nChoose a Visiblity for " + selectedCalendarName);
                             System.out.println("1. PUBLIC");
                             System.out.println("2. PRIVATE");
 
@@ -327,11 +358,12 @@ public static void main(String[] args) {
                                   System.out.println(selectedCalendarName + " is now PRIVATE");
                                 break; // case 2 visibilityChoice                       
                               default:
+                                System.out.println("Invalid Choice, Try Again");
                                 break; // default case visibilityChoice
                             }
                           break; // case 2 eventChoice
                         case 4:
-                            System.out.println("Choose a name for this event:");
+                            System.out.println("\nChoose a name for this event:");
                             String newEventName = scanner.nextLine();
                             boolean validStart = false;
                             boolean validEnd = false;
@@ -339,7 +371,7 @@ public static void main(String[] args) {
                             Date endDateTime = null;
                             while (!validStart) {
                               try {
-                                System.out.println("Enter start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                System.out.println("\nEnter start date and time (dd/MM/yyyy HH:mm:ss): ");
                                 String startDateTimeString = scanner.nextLine();
                                 startDateTime = dateFormat.parse(startDateTimeString);    
                                 validStart = true;
@@ -350,7 +382,7 @@ public static void main(String[] args) {
                             }
                             while (!validEnd) {
                               try {
-                                System.out.println("Enter end date and time (dd/MM/yyyy HH:mm:ss): ");
+                                System.out.println("\nEnter end date and time (dd/MM/yyyy HH:mm:ss): ");
                                 String endDateTimeString = scanner.nextLine();
                                 endDateTime = dateFormat.parse(endDateTimeString);
                                 validEnd = true;
@@ -367,20 +399,32 @@ public static void main(String[] args) {
                         case 5:
                             // print events here and do the event loop
                             if (hasEvents) {
-                              System.out.println("Select which Event you would like to manage");
-                              
-                              for (int i = 0; i < calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size(); i++) {
-                                System.out.println(i + ": " + calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(i).getEventName());
+                              int selectedEvent = 100000;
+                              boolean validEventChoice = false;
+                              while (!validEventChoice) {
+                                System.out.println("\nSelect which Event you would like to manage");
+
+                                for (int i = 0; i < calendarsApp.currentUser.getCalendars().get(selectedCalendar)
+                                    .getEvents().size(); i++) {
+                                  System.out.println(i + ": " + calendarsApp.currentUser.getCalendars()
+                                      .get(selectedCalendar).getEvents().get(i).getEventName());
+                                }
+
+                                selectedEvent = scanner.nextInt();
+                                scanner.nextLine();
+
+                                if (selectedEvent > calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size() - 1 || selectedEvent < 0) {
+                                  System.out.println("Invalid Choice, Try Again");
+                                } else {
+                                  validEventChoice = true;
+                                }
                               }
 
-                              int selectedEvent = scanner.nextInt();
-                              scanner.nextLine();
-
                               String selectedEventName = calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).getEventName();
-                              System.out.println("Managing " + selectedEventName);
+                              System.out.println("\nManaging Event: " + selectedEventName);
 
                               while (selectedEventName != "") {
-                                System.out.println("Choose an option:");
+                                System.out.println("\nChoose an option:");
                                 System.out.println("1. Back");
                                 System.out.println("2. Share With User");
                                 System.out.println("3. Change Event Name");
@@ -395,11 +439,11 @@ public static void main(String[] args) {
                                       selectedEventName = "";
                                     break;
                                   case 2:
-                                      System.out.println("Share User Functionality Here");
+                                      System.out.println("\nShare User Functionality Here");
                                     break;
 
                                   case 3:
-                                    System.out.println("Provide a new name for " + selectedEventName);
+                                    System.out.println("\nProvide a new name for " + selectedEventName);
                                     String changeEventName = scanner.nextLine();
                                     calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEventName(changeEventName);
                                     System.out.println(selectedEventName + " was changed to: " + changeEventName);
@@ -410,13 +454,12 @@ public static void main(String[] args) {
                                     boolean validTime = false;
                                     while (!validTime) {
                                       try {
-                                        System.out.println("Enter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                        System.out.println("\nEnter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
                                         String startDateTimeString = scanner.nextLine();
                                         startDateTime = dateFormat.parse(startDateTimeString);
                                         calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setStartTime(startDateTime);
                                         validTime = true;
                                       } catch (ParseException e) {
-                                        // TODO: handle exception
                                         System.out.println("Unable to parse date & time, try again");
                                       }
                                     }
@@ -425,18 +468,18 @@ public static void main(String[] args) {
                                     boolean validChangeTime = false;
                                     while (!validChangeTime) {
                                       try {
-                                        System.out.println("Enter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
+                                        System.out.println("\nEnter a new start date and time (dd/MM/yyyy HH:mm:ss): ");
                                         String endDateTimeString = scanner.nextLine();
                                         endDateTime = dateFormat.parse(endDateTimeString);
                                         calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEndTime(endDateTime);
                                         validChangeTime = true;
                                       } catch (ParseException e) {
-                                        // TODO: handle exception
                                         System.out.println("Unable to parse date & time, try again");
                                       }
                                     }
                                     break;
                                   default:
+                                    System.out.println("Invalid Choice, Try Again");
                                     break;
                                 }
 
@@ -446,7 +489,7 @@ public static void main(String[] args) {
                         
                         case 6:
                             if (hasEvents) {
-                              System.out.println("Select which Event you would like to remove");
+                              System.out.println("\nSelect which Event you would like to remove");
 
                               for (int i = 0; i < calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().size(); i++) {
                                 System.out.println(i + ": " + calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(i).getEventName());
@@ -455,14 +498,17 @@ public static void main(String[] args) {
                               int selectedEvent = scanner.nextInt();
                               scanner.nextLine();
 
-                              calendarsApp.currentUser.getCalendars().get(selectedCalendar).removeEvent(
-                                  calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent)
-                                      .getEventName());
+                              try {
+                                calendarsApp.currentUser.getCalendars().get(selectedCalendar).removeEvent(calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).getEventName());
+                              } catch (IndexOutOfBoundsException e) {
+                                System.out.println("Invalid Choice, Try Again");
+                              }
+
                               break;
                             }
                           
                         default: 
-                        // error handle int input here
+                            System.out.println("Invalid Choice, Try Again");
                           break; // default case calendarMenuChoice
                       }
                   }
@@ -472,7 +518,7 @@ public static void main(String[] args) {
               // Remove Calendar
               case 4:
                 if (hasCalendars) {
-                  System.out.println("Select which Calendar you would like to remove");
+                  System.out.println("\nSelect which Calendar you would like to remove");
                   List<Calendar> userCalendars = calendarsApp.currentUser.getCalendars();
                   for (int i = 0; i < userCalendars.size(); i++) {
                     System.out.println(i + ": " + userCalendars.get(i).getName());
@@ -480,12 +526,16 @@ public static void main(String[] args) {
 
                   int removeCalendarIndex = scanner.nextInt();
                   scanner.nextLine();
+                  try {
+                    calendarsApp.currentUser.removeCalendar(userCalendars.get(removeCalendarIndex).getName());
+                  } catch (IndexOutOfBoundsException e) {
+                    System.out.println("Invalid Choice, Try Again");
+                  }
 
-                  calendarsApp.currentUser.removeCalendar(userCalendars.get(removeCalendarIndex).getName());
                   break;
                 }
               default:
-              System.out.println("Invalid Choice, please re-try.");
+              System.out.println("Invalid Choice, Try Again");
                 break; // default case calendarChoice
             }
 
@@ -493,19 +543,10 @@ public static void main(String[] args) {
           } 
           break; // case 2 userChoice
         default:
+          System.out.println("Invalid Choice, Try Again\n");
           break; // default case userChoce
       }
     }
 }
 
 }
-
-// SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-// System.out.println("Enter start date and time (dd/MM/yyyy HH:mm:ss): ");
-// String startDateTimeString = scanner.nextLine();
-// Date startDateTime = dateFormat.parse(startDateTimeString);
-
-// System.out.println("Enter end date and time (dd/MM/yyyy HH:mm:ss): ");
-// String endDateTimeString = scanner.nextLine();
-// Date endDateTime = dateFormat.parse(endDateTimeString);
