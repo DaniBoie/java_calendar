@@ -173,7 +173,7 @@ class CalendarApp {
     this.users.add(newUser);
   }
 
-  public boolean setUser(String name) {
+  public boolean loginUser(String name) {
     for (User user : this.users) {
       if (user.getUsername().equals(name)) {
         this.currentUser = user;
@@ -187,7 +187,7 @@ class CalendarApp {
     return false;
   }
 
-  public void unsetUser() {
+  public void logoutUser() {
 
     this.currentUser = null;
     this.loggedIn = false;
@@ -250,7 +250,7 @@ public static void main(String[] args) {
             scanner.nextLine();
             
             try {
-              calendarsApp.setUser(calendarsApp.getUsers().get(loginUserIndex).getUsername());
+              calendarsApp.loginUser(calendarsApp.getUsers().get(loginUserIndex).getUsername());
               System.out.println("\n" + calendarsApp.currentUser.getUsername() + " Logged In:");
               validUser = true;
             } catch (IndexOutOfBoundsException e) {
@@ -278,7 +278,7 @@ public static void main(String[] args) {
             switch (calendarChoice) {
               // Logout User
               case 1:
-                  calendarsApp.unsetUser();
+                  calendarsApp.logoutUser();
                 break; // case 1 calendarChoice
               // Create Calendar
               case 2:
@@ -426,10 +426,10 @@ public static void main(String[] args) {
                               while (selectedEventName != "") {
                                 System.out.println("\nChoose an option:");
                                 System.out.println("1. Back");
-                                System.out.println("2. Share With User");
-                                System.out.println("3. Change Event Name");
-                                System.out.println("4. Change Start Time");
-                                System.out.println("5. Change End Time");
+                                // System.out.println("2. Share With User");
+                                System.out.println("2. Change Event Name");
+                                System.out.println("3. Change Start Time");
+                                System.out.println("4. Change End Time");
 
                                 int eventChoice = scanner.nextInt();
                                 scanner.nextLine();
@@ -438,11 +438,8 @@ public static void main(String[] args) {
                                   case 1:
                                       selectedEventName = "";
                                     break;
-                                  case 2:
-                                      System.out.println("\nShare User Functionality Here");
-                                    break;
 
-                                  case 3:
+                                  case 2:
                                     System.out.println("\nProvide a new name for " + selectedEventName);
                                     String changeEventName = scanner.nextLine();
                                     calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEventName(changeEventName);
@@ -450,7 +447,7 @@ public static void main(String[] args) {
                                     selectedEventName = changeEventName;
                                     break;
 
-                                  case 4:
+                                  case 3:
                                     boolean validTime = false;
                                     while (!validTime) {
                                       try {
@@ -464,7 +461,7 @@ public static void main(String[] args) {
                                       }
                                     }
                                     break;
-                                  case 5:
+                                  case 4:
                                     boolean validChangeTime = false;
                                     while (!validChangeTime) {
                                       try {
