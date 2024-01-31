@@ -10,14 +10,12 @@ class User {
   private List<Calendar> calendars = new ArrayList<Calendar>();
 
   public void addCalendar(String title) {
-    // Implementation here
     Calendar newCalendar = new Calendar();
     newCalendar.setName(title);
     this.calendars.add(newCalendar);
   }
 
   public void removeCalendar(String title) {
-    // Implementation here
     for (int i = 0; i < this.calendars.size(); i++) {
       if (this.calendars.get(i).getName().equals(title)) {
         this.calendars.remove(i);
@@ -157,7 +155,7 @@ class Calendars {
 
     String logo = """
 
-    
+
          ▄████████    ▄████████  ▄█          ▄████████ ███▄▄▄▄   ████████▄     ▄████████    ▄████████    ▄████████
         ███    ███   ███    ███ ███         ███    ███ ███▀▀▀██▄ ███   ▀███   ███    ███   ███    ███   ███    ███
         ███    █▀    ███    ███ ███         ███    █▀  ███   ███ ███    ███   ███    ███   ███    ███   ███    █▀
