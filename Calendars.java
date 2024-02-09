@@ -487,15 +487,14 @@ class Calendars {
     return selectedCalendar;
   }
 
-  static void calendarNameInput(int selectedCalendar) {
+  static String calendarNameInput(int selectedCalendar) {
     String selectedCalendarName = calendarsApp.getUserCalendarNameAt(selectedCalendar);
-    System.out.println(
-        "\nProvide a new name for " + selectedCalendarName + ": (Provide Text for Calendar Name)");
+    System.out.println("\nProvide a new name for " + selectedCalendarName + ": (Provide Text for Calendar Name)");
     String newName = scanner.nextLine();
     // calendarsApp.currentUser.getCalendars().get(selectedCalendar).setName(newName);
     calendarsApp.setUserCalendarName(selectedCalendar, newName);
     System.out.println(selectedCalendarName + " was changed to: " + newName);
-    selectedCalendarName = newName;
+    return newName;
   }
 
   static void calendarVisibilityInput(int selectedCalendar) {
@@ -615,7 +614,7 @@ class Calendars {
           break;
         // Change Calendar Name
         case 2:
-          calendarNameInput(selectedCalendar);
+          selectedCalendarName = calendarNameInput(selectedCalendar);
           break;
         // Set Calendar Visibility
         case 3:
@@ -675,14 +674,14 @@ class Calendars {
     return selectedEvent;
   }
 
-  static void changeEventNameInput(int selectedCalendar, int selectedEvent) {
+  static String changeEventNameInput(int selectedCalendar, int selectedEvent) {
     String selectedEventName = calendarsApp.getCalendarEventNameAt(selectedCalendar, selectedEvent);
     System.out.println("\nProvide a new name for " + selectedEventName + ": (Provide Text for Event Name)");
     String changeEventName = scanner.nextLine();
     // calendarsApp.currentUser.getCalendars().get(selectedCalendar).getEvents().get(selectedEvent).setEventName(changeEventName);
     calendarsApp.setCalendarEventNameAt(selectedCalendar, selectedEvent, changeEventName);
     System.out.println(selectedEventName + " was changed to: " + changeEventName);
-    selectedEventName = changeEventName;
+    return changeEventName;
   }
 
   static void changeEventStartInput(int selectedCalendar, int selectedEvent) {
@@ -747,7 +746,7 @@ class Calendars {
           break;
         // Change Event Name
         case 2:
-          changeEventNameInput(selectedCalendar, selectedEvent);
+          selectedEventName = changeEventNameInput(selectedCalendar, selectedEvent);
           break;
         // Change Start Time
         case 3:
