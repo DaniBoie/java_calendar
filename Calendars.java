@@ -50,6 +50,7 @@ class Calendar {
     return this.events;
   }
 
+  // Create Parameter Object for createEvent
   public void createEvent(String name, Date startTime, Date endTime) {
     Event newEvent = new Event();
     newEvent.setEventName(name);
@@ -116,10 +117,23 @@ class Event {
 }
 
 class CalendarApp {
+  
   private List<User> users = new ArrayList<User>();
   public User currentUser;
   public boolean loggedIn = false;
 
+  // !REFACTOR!
+  private static CalendarApp calendarApp;
+
+  private CalendarApp() {}
+
+  public static CalendarApp getInstance() {
+    if (calendarApp == null) {
+      calendarApp = new CalendarApp();
+    }
+    return calendarApp;
+  }
+  // !REFACTOR!
   public void createUser(String name) {
     User newUser = new User();
     newUser.setUsername(name);
@@ -148,7 +162,7 @@ class CalendarApp {
     return this.users;
   }
 }
-
+// Create Facade due to long message chains
 class Calendars {
   public static void main(String[] args) {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -168,7 +182,11 @@ class Calendars {
     """;
     System.out.println(logo);
 
-    CalendarApp calendarsApp = new CalendarApp();
+    // !REFACTOR!
+    // CalendarApp calendarsApp = new CalendarApp();
+    CalendarApp calendarsApp = CalendarApp.getInstance();
+    // !REFACTOR!
+
     Scanner scanner = new Scanner(System.in);
     boolean quitApp = false;
     // User Login Loop
